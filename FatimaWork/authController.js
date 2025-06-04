@@ -177,33 +177,24 @@ const AuthController = {
     scope: ["profile", "email"],
     session: false,
   }),
+  googleAuthCallback: async (req, res) => {
+    try {
+      const token = UserModel.generateToken(req.user.id, req.user.role);
 
-  googleAuthCallback: passport.authenticate(
-    "google",
-    {
-      failureRedirect: "/login",
-      session: false,
-    },
-    async (req, res) => {
-      try {
-        const token = UserModel.generateToken(req.user.id, req.user.role);
-
-        // Redirect with token and user data
-        res.redirect(
-          `${process.env.CORS_ORIGIN}/auth/success?` +
-            `token=${token}&` +
-            `id=${req.user.id}&` +
-            `name=${encodeURIComponent(req.user.name)}&` +
-            `email=${encodeURIComponent(req.user.email)}&` +
-            `avatar=${encodeURIComponent(req.user.avatar || "")}&` +
-            `role=${req.user.role}`
-        );
-      } catch (error) {
-        logger.error(`Google callback error: ${error.message}`);
-        res.redirect(`${process.env.CORS_ORIGIN}/login?error=oauth_failed`);
-      }
+      res.redirect(
+        `${process.env.CORS_ORIGIN}/auth/success?` +
+          `token=${token}&` +
+          `id=${req.user.id}&` +
+          `name=${encodeURIComponent(req.user.name)}&` +
+          `email=${encodeURIComponent(req.user.email)}&` +
+          `avatar=${encodeURIComponent(req.user.avatar || "")}&` +
+          `role=${req.user.role}`
+      );
+    } catch (error) {
+      logger.error(`Google callback error: ${error.message}`);
+      res.redirect(`${process.env.CORS_ORIGIN}/login?error=oauth_failed`);
     }
-  ),
+  },
 
   async getMe(req, res, next) {
     try {
